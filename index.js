@@ -1,10 +1,28 @@
 const {Builder, By, until} = require('selenium-webdriver');
+const chrome = require('selenium-webdriver/chrome');
 
 
 async function setupDriver_Chrome() {
   const timeout = 2000;
   const driver = await new Builder().forBrowser('chrome').build();
   await driver.manage().setTimeouts({ implicit: timeout });
+  return driver;
+}
+
+function setupDriverUsingCustomDriverService_Chrome() {
+  const chromeOptions = new chrome.Options();
+  chromeOptions.setChromeBinaryPath('./chromeDriver');
+  chromeOptions.addArguments('--headless');
+  chromeOptions.addArguments('--disable-gpu');
+
+  const timeout = 2000;
+
+  const driver = new Builder()
+    .forBrowser('chrome')
+    .setChromeOptions(chromeOptions)
+    .build();
+  
+  driver.manage().setTimeouts({ implicit: timeout });
   return driver;
 }
 
@@ -58,12 +76,22 @@ async function getProducts_PaoDeAcucar(productName) {
 
 (async function main() {
 
-
+/*
   const products = await getProducts_PaoDeAcucar('café');
 
   // prints the products found
   for (const product of products) {
     console.log(`price: ${product.price}\tname: ${product.name}`);
   }
+*/
+
+// Exemplo de uso:
+const driver = setupDriverUsingCustomDriverService_Chrome();
+await driver.get('https://www.paodeacucar.com/')
+  .then(() => {
+
+    console.log("Deu certo");
+    
+  }).then(() => driver.quit());
 
 })();
