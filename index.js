@@ -1,4 +1,5 @@
 const {Builder, By, until} = require('selenium-webdriver');
+const chrome = require('selenium-webdriver/chrome');
 
 
 async function setupDriver_Chrome() {
@@ -8,10 +9,22 @@ async function setupDriver_Chrome() {
   return driver;
 }
 
+async function setupDriverSilent_Chrome() {
+  const timeout = 2000;
+
+  const chromeConfig = new chrome.Options();
+  chromeConfig.addArguments('--headless');
+  chromeConfig.addArguments('--disable-gpu');
+
+  const driver = await new Builder().forBrowser('chrome').setChromeOptions(chromeConfig).build();
+
+  await driver.manage().setTimeouts({ implicit: timeout });
+  return driver;
+}
 
 async function getProducts_PaoDeAcucar(productName) {
   
-  const driver = await setupDriver_Chrome();
+  const driver = await setupDriverSilent_Chrome();
 
   const searchUrl = encodeURI(`https://www.paodeacucar.com/busca?terms=${productName}`);
   const titleAfterLoad = `${productName} | Pão de Açúcar`;
