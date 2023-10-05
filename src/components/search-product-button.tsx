@@ -1,16 +1,16 @@
 import Button from "@mui/material/Button";
+import AddIcon from '@mui/icons-material/Add';
 
-type SearchProductsButtonProps = {
-  onClick: () => void;
-}
-
-export default function SearchProductsButton(props: SearchProductsButtonProps) {
+export default function SearchProductsButton() {
 
   return (
-    <>
-      <div>
-        <Button onClick={props.onClick}>Buscar</Button>
-      </div>
-    </>
+    <Button
+      variant="contained"
+      endIcon={<AddIcon />}
+      sx={{ ml: '16px' }}
+      type="submit"
+    >
+      Adicionar
+    </Button>
   );
 }

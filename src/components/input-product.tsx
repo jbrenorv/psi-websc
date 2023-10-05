@@ -1,4 +1,4 @@
-import Input from "@mui/material/Input";
+import { TextField } from "@mui/material";
 
 type InputProductProps = {
   value: string;
@@ -12,15 +12,16 @@ export default function InputProduct(props: InputProductProps) {
   }
 
   return (
-    <>
-      <div>
-        <Input
-          type="text"
-          placeholder="Nome do produto"
-          value={props.value}
-          onChange={onChange}
-        />
-      </div>
-    </>
+    <TextField
+      id="outlined-basic"
+      variant="outlined"
+      type="search"
+      placeholder="Nome do produto"
+      value={props.value}
+      size="small"
+      fullWidth
+      autoComplete="off"
+      onChange={onChange}
+    />
   );
 }
