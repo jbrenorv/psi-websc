@@ -1,3 +1,4 @@
+import * as React from 'react';
 import Head from 'next/head'
 import { useState } from 'react';
 import { Roboto } from 'next/font/google'
@@ -7,7 +8,10 @@ import SearchProductsButton from '@/components/search-product-button';
 import InputProduct from '@/components/input-product';
 import Center from '@/components/flex/center';
 import FlexRow from '@/components/flex/flex-row';
-import { Container } from '@mui/material';
+import { Avatar, Button, Container, IconButton, List, ListItem, ListItemAvatar, ListItemText, Paper, Snackbar } from '@mui/material';
+import ProductionQuantityLimitsIcon from '@mui/icons-material/ProductionQuantityLimits';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { Alert } from '@/components/alert';
 
 const roboto = Roboto({ weight: '400', subsets: ['latin'] });
 
@@ -15,7 +19,12 @@ export default function HomePage() {
 
   const router = useRouter();
 
-  const [ productName, setProductName ] = useState('');
+  const [ productName, setProductName ] = React.useState('');
+  const [ products, setProducts ] = React.useState<string[]>([]);
+  const [ snackbar, setSnackbar ] = React.useState({
+    open: false,
+    message: "",
+  });
 
   const onProductNameChange = (value: string) => setProductName(value);
 
@@ -29,6 +38,31 @@ export default function HomePage() {
     router.push(`/products/${productName}`);
   }
 
+  const addProduct = (event: any) => {
+    event.preventDefault();
+    if (!productName) return;
+    if (products.includes(productName)) {
+      showSnackbar(`${productName} já foi adicionado.`);
+      return;
+    }
+    setProducts([...products, productName]);
+    setProductName('');
+  }
+
+  const closeSnackbar = (event?: React.SyntheticEvent | Event, reason?: string) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setSnackbar({open: false, message: ''});
+  };
+
+  const showSnackbar = (message: string) => {
+    setSnackbar({open: true, message});
+  }
+
+  const hasProducts = () => products.length > 0;
+
   return (
     <>
       <Head>
@@ -39,8 +73,8 @@ export default function HomePage() {
       </Head>
       <main className={roboto.className} style={{ height: '100vh' }}>
 
-        <form onSubmit={submitForm}>
-          <Container maxWidth='md'>
+        <form onSubmit={addProduct}>
+          <Container maxWidth='sm'>
             <Center>
               <h1>Crie sua lista de compras!</h1>
               <FlexRow>
@@ -51,8 +85,62 @@ export default function HomePage() {
                 <SearchProductsButton />
               </FlexRow>
             </Center>
+
+            {hasProducts() &&
+              <div>
+                <Paper
+                  sx={{
+                    maxHeight: '75vh',
+                    overflow: 'auto',
+                    my: '16px'
+                  }}
+                >
+                  <List dense>
+                    {
+                      products.map((product, index) => (
+                        <ListItem
+                          key={index}
+                          secondaryAction={
+                            <IconButton edge="end" aria-label="delete">
+                              <DeleteIcon />
+                            </IconButton>
+                          }
+                        >
+                          <ListItemAvatar>
+                            <Avatar>
+                              <ProductionQuantityLimitsIcon />
+                            </Avatar>
+                          </ListItemAvatar>
+                          <ListItemText
+                            primary={product}
+                            sx={{ wordWrap: "break-word" }}
+                          />
+                        </ListItem>
+                      ))
+                    }
+                  </List>
+                </Paper>
+                <Button
+                  fullWidth
+                  variant="contained"
+                >
+                  Buscar
+                </Button>
+              </div>
+            }
           </Container>
         </form>
+
+        <Snackbar
+          open={snackbar.open}
+          autoHideDuration={6000}
+          onClose={closeSnackbar}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        >
+          <Alert onClose={closeSnackbar} severity="warning" sx={{ width: '100%' }}>
+            {snackbar.message}
+          </Alert>
+        </Snackbar>
       </main>
     </>
   )

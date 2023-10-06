@@ -7,7 +7,7 @@ export default function SearchProductsButton() {
     <Button
       variant="contained"
       endIcon={<AddIcon />}
-      sx={{ ml: '16px' }}
+      sx={{ ml: '16px', px: '24px' }}
       type="submit"
     >
       Adicionar
