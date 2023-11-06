@@ -1,6 +1,5 @@
 import * as React from 'react';
 import Head from 'next/head'
-import { useState } from 'react';
 import { Roboto } from 'next/font/google'
 import { useRouter } from 'next/router';
 
@@ -26,7 +25,10 @@ export default function HomePage() {
     message: "",
   });
 
-  const onProductNameChange = (value: string) => setProductName(value);
+  const onProductNameChange = (value: string) => {
+    if (value.endsWith('_')) return;
+    setProductName(value);
+  }
 
   const submitForm = (event: any) => {
     event.preventDefault();
@@ -34,8 +36,8 @@ export default function HomePage() {
   }
 
   const searchProducts = async () => {
-    console.log(productName);
-    router.push(`/products/${productName}`);
+    const productNames = products.join('_');
+    router.push(`/products/${productNames}`);
   }
 
   const addProduct = (event: any) => {
@@ -47,6 +49,11 @@ export default function HomePage() {
     }
     setProducts([...products, productName]);
     setProductName('');
+  }
+
+  const removeProduct = (product: string) => {
+    const newProducts = products.filter(p => p !== product);
+    setProducts(newProducts);
   }
 
   const closeSnackbar = (event?: React.SyntheticEvent | Event, reason?: string) => {
@@ -101,7 +108,11 @@ export default function HomePage() {
                         <ListItem
                           key={index}
                           secondaryAction={
-                            <IconButton edge="end" aria-label="delete">
+                            <IconButton
+                              edge="end"
+                              aria-label="delete"
+                              onClick={() => removeProduct(product)}
+                            >
                               <DeleteIcon />
                             </IconButton>
                           }
@@ -123,6 +134,7 @@ export default function HomePage() {
                 <Button
                   fullWidth
                   variant="contained"
+                  onClick={submitForm}
                 >
                   Buscar
                 </Button>

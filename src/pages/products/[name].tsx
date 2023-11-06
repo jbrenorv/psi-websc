@@ -1,22 +1,42 @@
+import Center from "@/components/flex/center";
 import * as websc from "@/services/websc/websc";
-import { List, ListItem, ListItemText } from "@mui/material";
+import ProductionQuantityLimitsIcon from '@mui/icons-material/ProductionQuantityLimits';
+import {
+  Avatar,
+  Box,
+  Container,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemText,
+  Paper,
+  Typography
+} from "@mui/material";
 
 
 type ProductsPageProps = {
   products: websc.Product[];
+  total: string;
 }
 
 
 export async function getServerSideProps(context: any) {
 
-  const productName = context.params.name;
-  const products = await websc.getProducts_PaoDeAcucar(productName);
+  const productNames = context.params.name.split('_');
+  const products = await websc.getProducts_PaoDeAcucar(productNames);
 
-  return { props: { products } }
+  let total = 0.0;
+  try {
+    for (const product of products) {
+      total += (Number(product.price.match(/\d+/g)?.join('').replaceAll(',', '.')) ?? 0.0);
+    }
+  } catch {}
+
+  return { props: { products, total: `R$ ${total / 100.0}` } }
 }
 
 
-export default function ProductsPage({ products }: ProductsPageProps) {
+export default function ProductsPage({ products, total }: ProductsPageProps) {
 
   const hasProducts = () => products.length > 0;
 
@@ -24,18 +44,63 @@ export default function ProductsPage({ products }: ProductsPageProps) {
     <>
       {
         !hasProducts()
-        ? (<h1>Nenhum produto encontrado</h1>)
+        ? (<Center><h1>Nenhum produto encontrado</h1></Center>)
         : (
 
-          <List>
-            {products.map((product, index) => (
-              <ListItem key={index}>
-                <ListItemText
-                  primary={`price: ${product.price}\tname: ${product.name}`}
-                />
-              </ListItem>
-            ))}
-          </List>
+          <Container maxWidth='sm'>
+            <div>
+              <Typography
+                variant="h5"
+                textAlign='center'
+                sx={{ py: '32px', fontWeight: 'bold' }}
+              >
+                Supermercado Pão de Açucar
+              </Typography>
+
+              <Paper
+                sx={{
+                  maxHeight: '75vh',
+                  overflow: 'auto',
+                  my: '16px'
+                }}
+              >
+                <List dense>
+                  {
+                    products.map((product, index) => (
+                      <ListItem
+                        key={index}
+                      >
+                        <ListItemAvatar>
+                          <Avatar>
+                            <ProductionQuantityLimitsIcon />
+                          </Avatar>
+                        </ListItemAvatar>
+                        <ListItemText
+                          primary={product.name}
+                          secondary={product.price}
+                          sx={{ wordWrap: "break-word" }}
+                        />
+                      </ListItem>
+                    ))
+                  }
+                </List>
+              </Paper>
+
+              <Container maxWidth="sm">
+                <Box sx={{
+                  bgcolor: '#cfe8fc',
+                  p: '16px',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  borderRadius: '8px'
+                }}>
+                  <Typography sx={{ fontWeight: 'bold' }}>Total</Typography>
+                  <Typography>{total}</Typography>
+                </Box>
+              </Container>
+
+            </div>
+          </Container>
 
         )
       }
